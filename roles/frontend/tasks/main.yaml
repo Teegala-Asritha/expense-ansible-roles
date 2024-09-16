@@ -1,26 +1,26 @@
-- name: install nginx server
+- name: Install nginx server
   ansible.builtin.package:
     name: nginx
     state: present
-- name: start nginx server
+
+- name: Start nginx server
   ansible.builtin.service:
     name: nginx
     state: started
     enabled: yes
 
-- name: import tasks from common role
+- name: Copy expense nginx configuration
+  ansible.builtin.template:
+    src: expense.conf.j2
+    dest: /etc/nginx/conf.d/expense.conf
+  notify: 
+    - Restart nginx
+
+- name: Ensure backend configuration is available
+  ansible.builtin.debug:
+    msg: "Backend Host is {{ BACKEND_HOST }}"
+
+- name: Import tasks from common role
   ansible.builtin.import_role:
     name: common
     tasks_from: app-pre-req
-
-- name: copy expense conf
-  ansible.builtin.template:
-    src: expense.conf.j2
-    dest: /etc/nginx/default.d/expense.conf
-  notify: 
-  - Restart nginx
-
-#- name: restart nginx
-# ansible.builtin.service:
-#    name: nginx
-#   state: restarted
